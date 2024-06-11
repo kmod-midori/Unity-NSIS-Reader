@@ -254,8 +254,8 @@ namespace UnityNSISReader
                 lzmadecoder.SetDecoderProperties(properties);
                 //long fileLength = BitConverter.ToInt64(buffer, 5);
                 //Console.WriteLine("[LZMA] fileLength: " + fileLength);
-                MemoryStream outputStream = new MemoryStream(1 << 20);
-                lzmadecoder.Code(fs, outputStream, arcSize - 5, 1 << 20, null);
+                MemoryStream outputStream = new MemoryStream(1 << 24);
+                lzmadecoder.Code(fs, outputStream, arcSize - 5, 1 << 24, null);
                 if (isSolid)
                 {
                     byte[] buf = new byte[4];
@@ -463,6 +463,10 @@ namespace UnityNSISReader
                                 if (!string.IsNullOrEmpty(filter) && !Regex.IsMatch(filePathLocal, filter))
                                     continue;
 
+                                if (filePathLocal.StartsWith("/")) { 
+                                    filePathLocal = filePathLocal.Substring(1);
+                                }
+
                                 Console.WriteLine(filePathLocal);
 
                                 string filePath = Path.Combine(outDir, filePathLocal);
@@ -475,6 +479,10 @@ namespace UnityNSISReader
 
                                 //Console.WriteLine();
 
+                                if (size == 0) {
+                                    File.Create(filePath);
+                                    continue;
+                                }
 
                                 byte[] data = new byte[size];
                                 Array.Copy(sizeData, data, 4);
